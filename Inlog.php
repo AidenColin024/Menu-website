@@ -1,17 +1,18 @@
 <?php
-$servername = "mysql_db";
-$username = "root";
-$password = "rootpassword";
-
-try {
-    $conn = new PDO("mysql:host=$servername;dbname=Restaurant", $username, $password);
-    // set the PDO error mode to exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connected successfully";
-} catch(PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+session_start();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        if ($_POST['username'] == "aidencolindna@gmail.com" && $_POST['password'] == "geheim") {
+            $_SESSION['username'] = "aidencolindna@gmail.com";
+            header("location: Back-end.php");
+            exit();
+        } else {
+            echo "<script>alert('Ongeldige inloggegevens!');</script>";
+        }
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,11 +41,11 @@ try {
     </nav>
 </header>
 <div class="contact">
-    <form class="pagina">
+    <form class="pagina" method="POST">
         <h2>Inloggen</h2>
-        <p>Werkt u bij ons of bent u de eigenaar? log dan hier in.</p>
-        <input type="email" class="styling-form" placeholder="Email" required>
-        <input type="Wachtwoord" class="styling-form" placeholder="Wachtwoord" required>
+        <p>Werkt u bij ons of bent u de eigenaar? Log dan hier in.</p>
+        <input type="email" name="username" class="styling-form" placeholder="Email" required>
+        <input type="password" name="password" class="styling-form" placeholder="Wachtwoord" required>
         <div class="Send">
             <button type="submit" class="styling-form">Send</button>
         </div>
