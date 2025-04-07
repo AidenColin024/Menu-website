@@ -68,7 +68,7 @@ $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <ul>
             <li><a href="Menu.php">Menu</a></li>
             <li><a href="Contact.php">Contact</a></li>
-            <li><a href="Logout.php">Uitloggen</a></li>
+            <li><a href="Uitlog.php">Uitloggen</a></li>
         </ul>
     </nav>
 </header>
