@@ -336,6 +336,57 @@ h1 {
     .Fotos div {
         font-size: 14px;
     }
+    .pagina {
+        width: 100%;
+        padding: 20px 10px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
 
+    .styling-form {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .Send button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    /* Zorg dat tabellen niet het scherm breken */
+    .styling-table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+        font-size: 12px;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    /* Knoppen binnen de tabel netjes onder elkaar zetten */
+    .styling-table td {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Zorg dat forms in tabel (zoals verwijderen) niet naast elkaar staan */
+    .styling-table form {
+        width: 100%;
+    }
+
+    /* Table cells responsive maken */
+    .styling-table th,
+    .styling-table td {
+        word-break: break-word;
+        padding: 10px;
+        text-align: left;
+    }
 }
 

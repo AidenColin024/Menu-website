@@ -46,6 +46,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Producten ophalen
 $stmt = $conn->query("SELECT * FROM Menu");
 $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+// Formulierverwerking (na het indienen)
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Verkrijg de gegevens van het formulier
+    $email = isset($_POST['email']) ? $_POST['email'] : null;
+    $bericht = isset($_POST['bericht']) ? $_POST['bericht'] : null;
+
+    // Controleer of de velden niet leeg zijn
+    if (!empty($email) && !empty($bericht)) {
+        try {
+            // Voeg de gegevens toe aan de database
+            $stmt = $conn->prepare("INSERT INTO Vragen (email, bericht) VALUES (:email, :bericht)");
+            $stmt->execute([
+                ':email' => $email,
+                ':bericht' => $bericht
+            ]);
+            // Geef een bevestiging of stuur een bericht naar de gebruiker
+            echo "Uw vraag is succesvol verzonden!";
+        } catch (PDOException $e) {
+            echo "Er is een fout opgetreden bij het opslaan van uw vraag: " . $e->getMessage();
+        }
+    } else {
+        echo "Alle velden moeten worden ingevuld!";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +80,8 @@ $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Back-end</title>
-    <link rel="stylesheet" href="Chappies.css">
+    <link rel="stylesheet" href="Chappies.css?v=<?php echo time(); ?>">
+
 </head>
 <body>
 <header>
@@ -83,11 +110,36 @@ $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="menu-item" onclick="showContent('producten')">
             <h2>Producten</h2>
         </div>
+        <div class="menu-item" onclick="showContent('contactvragen')">
+            <h2>Contactvragen</h2>
+        </div>
+
     </div>
 
     <div id="bestellingen" class="content active">
         <h2>Bestellingen</h2>
         <p>Hier komen de bestellingen te staan.</p>
+    </div>
+    <div id="contactvragen" class="content">
+        <h2>Contactvragen</h2>
+        <?php if (empty($Vragen)): ?>
+            <p>Er zijn nog geen vragen ingestuurd.</p>
+        <?php else: ?>
+            <table class="styling-table">
+                <tr>
+                    <th>Email</th>
+                    <th>Vraag</th>
+                    <th>Datum</th>
+                </tr>
+                <?php foreach ($Vragen as $vraag): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($vraag['email']) ?></td>
+                        <td><?= nl2br(htmlspecialchars($vraag['bericht'])) ?></td>
+                        <td><?= $vraag['datum'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php endif; ?>
     </div>
 
     <div id="producten" class="content">

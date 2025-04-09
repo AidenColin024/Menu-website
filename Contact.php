@@ -7,9 +7,20 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=Restaurant", $username, $password);
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connected successfully";
-} catch(PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+} catch (PDOException $e) {
+    echo "Verbinding mislukt: " . $e->getMessage();
+}
+
+// Contactvraag opslaan
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+    $bericht = $_POST['bericht'];
+
+    $stmt = $conn->prepare("INSERT INTO Vragen (email, bericht) VALUES (:email, :bericht)");
+    $stmt->execute([
+        ':email' => $email,
+        ':bericht' => $bericht
+    ]);
 }
 ?>
 <!DOCTYPE html>
@@ -42,13 +53,15 @@ try {
 <!--Contact formulier gepakt van portfolio/pinkgoose opdracht-->
 <div class="contact">
     <form class="pagina">
-        <h2>Heeft u een vraag?</h2>
-        <p>Stel uw vraag hieronder en wij antwoorden hem zo snel mogelijk!</p>
-        <input type="email" class="styling-form" placeholder="Uw email zodat wij u kunnen antwoorden" required>
-        <textarea class="message" placeholder="Uw vraag" rows="6" required></textarea>
-        <div class="Send">
-            <button type="submit" class="styling-form">Send</button>
-        </div>
+        <form method="POST" action="Back-end.php" class="pagina">
+            <h2>Heeft u een vraag?</h2>
+            <p>Stel uw vraag hieronder en wij antwoorden hem zo snel mogelijk!</p>
+            <input type="email" class="styling-form" placeholder="Uw email" required>
+            <textarea class="message" placeholder="Uw vraag" rows="6" required></textarea>
+            <div class="Send">
+                <button type="submit" class="styling-form">Send</button>
+            </div>
+        </form>
     </form>
 </div>
 
