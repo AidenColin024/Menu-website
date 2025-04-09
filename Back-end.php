@@ -83,9 +83,6 @@ $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="menu-item" onclick="showContent('producten')">
             <h2>Producten</h2>
         </div>
-        <div class="menu-item" onclick="showContent('instellingen')">
-            <h2>Instellingen</h2>
-        </div>
     </div>
 
     <div id="bestellingen" class="content active">

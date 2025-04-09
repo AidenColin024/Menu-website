@@ -8,7 +8,7 @@ try {
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     echo "Connected successfully";
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 
 }
@@ -49,16 +49,17 @@ try {
             <h2>Alleen bij Chappies.</h2>
         </div>
     </div>
-</section>
-<!--Socials en copyright tekst voor fullen van de pagina-->
-<footer>
-    <div class="socials">
-        <div>Onze socials →</div>
-        <img src="images/OIP (2).jpg" alt="Instagram">
-        <img src="images/OIP.jpg" alt="Facebook">
-    </div>
-    <div>2025 Chappies Enterprise. Alle rechten voorbehouden</div>
-</footer>
+    <!--Socials en copyright tekst voor fullen van de pagina-->
+    <footer>
+        <div class="socials">
+            <div>Onze socials →</div>
+            <a href="https://www.instagram.com" target="_blank">
+                <img src="images/OIP (2).jpg" alt="Instagram">
+                <a href="https://www.facebook.com/yourusername" target="_blank">
+                    <img src="images/OIP.jpg" alt="Facebook">
+        </div>
+        <div>2025 Chappies Enterprise. Alle rechten voorbehouden</div>
+    </footer>
 </body>
 
 </html>

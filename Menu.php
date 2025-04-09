@@ -70,8 +70,10 @@ $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <footer>
     <div class="socials">
         <div>Onze socials →</div>
-        <img src="images/OIP (2).jpg" alt="Instagram">
-        <img src="images/OIP.jpg" alt="Facebook">
+        <a href="https://www.instagram.com" target="_blank">
+            <img src="images/OIP (2).jpg" alt="Instagram">
+            <a href="https://www.facebook.com/yourusername" target="_blank">
+                <img src="images/OIP.jpg" alt="Facebook">
     </div>
     <div>2025 Chappies Enterprise. Alle rechten voorbehouden</div>
 </footer>
