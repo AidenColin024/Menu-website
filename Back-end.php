@@ -47,6 +47,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $stmt = $conn->query("SELECT * FROM Menu");
 $producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Vragen ophalen
+$stmt = $conn->query("SELECT * FROM Vragen");
+$Vragen = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Formulierverwerking (na het indienen)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -61,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $conn->prepare("INSERT INTO Vragen (email, bericht) VALUES (:email, :bericht)");
             $stmt->execute([
                 ':email' => $email,
-                ':bericht' => $bericht
+                ':bericht' => $bericht,
             ]);
             // Geef een bevestiging of stuur een bericht naar de gebruiker
             echo "Uw vraag is succesvol verzonden!";
@@ -111,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <h2>Producten</h2>
         </div>
         <div class="menu-item" onclick="showContent('contactvragen')">
-            <h2>Contactvragen</h2>
+            <h2>Inkomende vragen</h2>
         </div>
 
     </div>

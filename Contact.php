@@ -5,22 +5,32 @@ $password = "rootpassword";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=Restaurant", $username, $password);
-    // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     echo "Verbinding mislukt: " . $e->getMessage();
 }
 
-// Contactvraag opslaan
+// Formulierverwerking na indienen
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Verkrijg de formuliergegevens
     $email = $_POST['email'];
     $bericht = $_POST['bericht'];
+    $datum = date("Y-m-d H:i:s"); // Datum en tijd toevoegen
 
-    $stmt = $conn->prepare("INSERT INTO Vragen (email, bericht) VALUES (:email, :bericht)");
-    $stmt->execute([
-        ':email' => $email,
-        ':bericht' => $bericht
-    ]);
+    // Zorg ervoor dat de velden niet leeg zijn
+    if (!empty($email) && !empty($bericht)) {
+        try {
+            // Bereid de SQL-query voor en voer deze uit
+            $stmt = $conn->prepare("INSERT INTO Vragen (email, bericht) VALUES (:email, :bericht)");
+            $stmt->execute([
+                ':email' => $email,
+                ':bericht' => $bericht,
+                ':datum' => $datum
+            ]);
+        } catch (PDOException $e) {
+            echo "Fout bij het verzenden van de vraag: " . $e->getMessage();
+        }
+    }
 }
 ?>
 <!DOCTYPE html>

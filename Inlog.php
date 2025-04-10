@@ -1,14 +1,36 @@
 <?php
 session_start();
+
+$host = "mysql_db";
+$dbname = "Restaurant";
+$username = "root";
+$password = "rootpassword";
+
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Verbinding mislukt: " . $e->getMessage());
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['username']) && isset($_POST['password'])) {
-        if ($_POST['username'] == "aidencolindna@gmail.com" && $_POST['password'] == "geheim") {
-            $_SESSION['username'] = "aidencolindna@gmail.com";
-            header("location: Back-end.php");
-            exit();
-        } else {
-            echo "<script>alert('Ongeldige inloggegevens!');</script>";
-        }
+    $gebruiker = $_POST['Gebruiker'];
+    $wachtwoord = $_POST['Wachtwoord'];
+
+    $stmt = $conn->prepare("SELECT * FROM Gebruikers WHERE Gebruiker = :Gebruiker AND Wachtwoord = :Wachtwoord");
+    $stmt->execute([
+        ':Gebruiker' => $gebruiker,
+        ':Wachtwoord' => $wachtwoord
+    ]);
+
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        $_SESSION['username'] = $user['Gebruiker'];
+        header("Location: Back-end.php");
+        exit();
+    } else {
+        echo "Ongeldige gebruikersnaam of wachtwoord.";
     }
 }
 ?>
@@ -44,13 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form class="pagina" method="POST">
         <h2>Inloggen</h2>
         <p>Werkt u bij ons of bent u de eigenaar? Log dan hier in.</p>
-        <input type="email" name="username" class="styling-form" placeholder="Email" required>
-        <input type="password" name="password" class="styling-form" placeholder="Wachtwoord" required>
+        <input type="text" name="Gebruiker" class="styling-form" placeholder="Gebruiker" required>
+        <input type="password" name="Wachtwoord" class="styling-form" placeholder="Wachtwoord" required>
         <div class="Send">
-            <button type="submit" class="styling-form">Send</button>
+            <button type="submit" class="styling-form">Inloggen</button>
         </div>
     </form>
 </div>
+
 <footer>
     <div class="socials">
         <div>Onze socials →</div>
