@@ -111,38 +111,12 @@ h1 {
     font-size: 28px;
     font-weight: bold;
 }
-/* Stijl voor de zoekbalk bovenaan */
-.search-container {
-    margin: 20px 0;
-    text-align: center;
-}
-
-.search-form {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-input {
-    padding: 8px;
-    font-size: 14px;
-    width: 250px;
-    margin-right: 10px;
-    border-radius: 5px;
+.styling-form {
+    padding: 10px;
+    margin: 10px 0;
+    width: 300px;
     border: 1px solid #ccc;
-}
-
-.search-button {
-    padding: 8px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
     border-radius: 5px;
-    cursor: pointer;
-}
-
-.search-button:hover {
-    background-color: #45a049;
 }
 
 .menu {

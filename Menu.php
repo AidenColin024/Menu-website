@@ -1,38 +1,45 @@
 <?php
-$servername = "mysql_db";
-$username = "root";
-$password = "rootpassword";
+// Databaseverbinding
+$host = "mysql_db";
 $dbname = "Restaurant";
+$username = "root"; // Pas aan naar jouw databasegebruikersnaam
+$password = "rootpassword"; // Pas aan naar jouw databasewachtwoord
 
 try {
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Verbinding mislukt: " . $e->getMessage());
 }
 
-// Producten ophalen uit de database
-$stmt = $conn->query("SELECT * FROM Menu");
-$producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-if (isset($_POST['zoekveld'])){
-    $stmt = $conn->prepare('SELECT * FROM Menu WHERE naam LIKE "%' . $_POST['zoekveld'] . '%"');
-    }else {
-    $stmt = $conn->query('SELECT * FROM Menu');
+// Zoekterm ophalen van het formulier (indien aanwezig)
+$searchTerm = '';
+if (isset($_POST['search'])) {
+    $searchTerm = $_POST['search'];
 }
+
+// SQL-query aanpassen op basis van zoekterm
+if (!empty($searchTerm)) {
+    $stmt = $conn->prepare("SELECT * FROM Menu WHERE naam LIKE :searchTerm");
+    $stmt->execute([':searchTerm' => '%' . $searchTerm . '%']);
+} else {
+    $stmt = $conn->query("SELECT * FROM Menu");
+}
+
+// Resultaten ophalen
+$producten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
-    <link rel="stylesheet" href="Chappies.css">
+    <link rel="stylesheet" href="Chappies.css?v=<?php echo time(); ?>">
 </head>
-
 <body>
+
 <header>
     <div class="logo">
         <a href="Index.php">
@@ -40,77 +47,47 @@ if (isset($_POST['zoekveld'])){
         </a>
         <span>Chappies</span>
     </div>
-    <h1>Ons Menu</h1>
     <nav>
         <ul>
             <li><a href="Menu.php">Menu</a></li>
             <li><a href="Contact.php">Contact</a></li>
-            <li><a href="Inlog.php">Inloggen</a></li>
+            <li><a href="Uitlog.php">Uitloggen</a></li>
         </ul>
     </nav>
 </header>
-<!-- Dynamisch menu -->
-<div class="menu">
-    <div class="menu-item" onclick="toggleMenu('menu-lijst')">
-        <img src="images/fg-burgers-icon-01.jpg" alt="Menu">
-        <h2>Bekijk Menu</h2>
-        <!-- Zoekformulier bovenaan de pagina -->
-        <div class="search-container">
-            <form method="GET" class="search-form">
-                <input type="text" name="search" class="search-input" placeholder="Zoek een product..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-                <button type="submit" class="search-button">Zoeken</button>
-            </form>
-        </div>
-    </div>
-</div>
 
+<div class="container">
+    <h1>Menu</h1>
+    <p>Zoek naar producten op het menu:</p>
 
-<div class="menu-content" id="menu-lijst">
-    <?php if (!empty($producten)): ?>
-        <ul>
+    <!-- Zoekbalk bovenaan de pagina -->
+    <form method="POST">
+        <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" placeholder="Zoek naar een product" class="styling-form">
+        <button type="submit" class="styling-form">Zoeken</button>
+    </form>
+
+    <!-- Productenlijst -->
+    <h3>Bestaande producten</h3>
+    <table class="styling-table">
+        <tr>
+            <th>Naam</th>
+            <th>Prijs</th>
+        </tr>
+        <?php if (!empty($producten)): ?>
             <?php foreach ($producten as $product): ?>
-                <li>
-                    <strong><?= htmlspecialchars($product['naam']) ?></strong> -
-                    €<?= number_format($product['prijs'], 2, ',', '.') ?>
-                </li>
+                <tr>
+                    <td><?= htmlspecialchars($product['naam']) ?></td>
+                    <td>€<?= htmlspecialchars($product['prijs']) ?></td>
+                </tr>
             <?php endforeach; ?>
-        </ul>
-    <?php else: ?>
-        <p>Er staan momenteel geen producten op het menu.</p>
-    <?php endif; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="2">Geen producten gevonden</td>
+            </tr>
+        <?php endif; ?>
+    </table>
 </div>
 
-<footer>
-    <div class="socials">
-        <div>Onze socials →</div>
-        <a href="https://www.instagram.com" target="_blank">
-            <img src="images/OIP (2).jpg" alt="Instagram">
-            <a href="https://www.facebook.com/yourusername" target="_blank">
-                <img src="images/OIP.jpg" alt="Facebook">
-    </div>
-    <div>2025 Chappies Enterprise. Alle rechten voorbehouden</div>
-</footer>
 </body>
-
-<script>
-    function toggleMenu(id) {
-        document.getElementById(id).classList.toggle('active');
-    }
-    document.getElementById("searchForm").addEventListener("submit", function(event) {
-        event.preventDefault();  // voorkom dat de pagina herlaadt
-
-        var searchTerm = document.getElementById("searchInput").value;
-
-        // AJAX-aanroep om de zoekresultaten op te halen
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "Menu.php?search=" + encodeURIComponent(searchTerm), true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                // Werk de inhoud van de producten tabel bij met de nieuwe zoekresultaten
-                document.getElementById("productTable").innerHTML = xhr.responseText;
-            }
-        };
-        xhr.send();
-    });
-</script>
 </html>
+

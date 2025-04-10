@@ -54,26 +54,6 @@ $stmt = $conn->query("SELECT * FROM Vragen");
 $Vragen = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Controleer of zowel naam als vraag zijn ingevuld
-    if (empty($_POST['Naam']) || empty($_POST['Vraag'])) {
-        echo "Vul alstublieft alle velden in.";
-    } else {
-        // Als de velden niet leeg zijn, voer je de database-operatie uit
-        $Naam = $_POST['Naam'];
-        $Vraag = $_POST['Vraag'];
-
-        try {
-            $stmt = $conn->prepare("INSERT INTO Vragen (Naam, Vraag) VALUES (:Naam, :Vraag)");
-            $stmt->execute([':naam' => $Naam, ':vraag' => $Vraag]);
-            echo "Je vraag is succesvol verzonden!";
-        } catch (PDOException $e) {
-            echo "Fout bij het versturen van je vraag: " . $e->getMessage();
-        }
-    }
-}
-
-
 ?>
 
 <!DOCTYPE html>
@@ -104,7 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container">
     <h1>Dashboard</h1>
-    <p>Beheer hier bestellingen en producten.</p>
+    <p>Beheer hier bestellingen, producten en inkomende vragen.</p>
+
+    <!-- Menu met tabs -->
     <div class="menu">
         <div class="menu-item" onclick="showContent('bestellingen')">
             <h2>Bestellingen</h2>
@@ -112,98 +94,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="menu-item" onclick="showContent('producten')">
             <h2>Producten</h2>
         </div>
-        <div class="menu-item" onclick="showContent('contactvragen')">
+        <div class="menu-item" onclick="showContent('vragen')">
             <h2>Inkomende vragen</h2>
         </div>
-
     </div>
 
-    <div id="bestellingen" class="content active">
+    <!-- Bestellingen Sectie -->
+    <div id="bestellingen" class="content">
         <h2>Bestellingen</h2>
         <p>Hier komen de bestellingen te staan.</p>
     </div>
 
-</div>
+    <!-- Producten Sectie -->
+    <div id="producten" class="content">
+        <h2>Productbeheer</h2>
 
-<div id="producten" class="content">
-    <h2>Productbeheer</h2>
-
-    <!-- Product toevoegen -->
-    <form method="POST" class="pagina">
-        <input type="hidden" name="action" value="toevoegen">
-        <input type="text" name="naam" class="styling-form" placeholder="Productnaam" required>
-        <input type="number" name="prijs" class="styling-form" placeholder="Prijs (€)" step="0.01" required>
-        <div class="Send">
-            <button type="submit" class="styling-form">Product toevoegen</button>
-        </div>
-    </form>
-
-    <!-- Productlijst -->
-    <h3>Bestaande producten</h3>
-    <table class="styling-table">
-        <tr>
-            <th>Naam</th>
-            <th>Prijs</th>
-            <th>Acties</th>
-        </tr>
-        <?php foreach ($producten as $product): ?>
-            <tr>
-                <td><?= htmlspecialchars($product['naam']) ?></td>
-                <td>€<?= htmlspecialchars($product['prijs']) ?></td>
-                <td>
-                    <button class="styling-form"
-                            onclick="editProduct(<?= $product['id'] ?>, '<?= addslashes($product['naam']) ?>', <?= $product['prijs'] ?>)">
-                        Bewerken
-                    </button>
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="action" value="verwijderen">
-                        <input type="hidden" name="id" value="<?= $product['id'] ?>">
-                        <button type="submit" class="styling-form">Verwijderen</button>
-                    </form>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
-
-    <!-- Update formulier (verborgen totdat je een product bewerkt) -->
-    <div id="editForm" class="pagina" style="display:none;">
-        <h3>Product bewerken</h3>
-        <form method="POST">
-            <input type="hidden" name="action" value="updaten">
-            <input type="hidden" id="editId" name="id">
-            <input type="text" id="editNaam" name="naam" class="styling-form" required>
-            <input type="number" id="editPrijs" name="prijs" class="styling-form" step="0.01" required>
+        <!-- Product toevoegen -->
+        <form method="POST" class="pagina">
+            <input type="hidden" name="action" value="toevoegen">
+            <input type="text" name="naam" class="styling-form" placeholder="Productnaam" required>
+            <input type="number" name="prijs" class="styling-form" placeholder="Prijs (€)" step="0.01" required>
             <div class="Send">
-                <button type="submit" class="styling-form">Wijzigingen opslaan</button>
-                <button type="button" class="styling-form" onclick="cancelEdit()">Annuleren</button>
+                <button type="submit" class="styling-form">Product toevoegen</button>
             </div>
         </form>
+
+        <!-- Producten weergeven -->
+        <h3>Bestaande producten</h3>
+        <table class="styling-table">
+            <tr>
+                <th>Naam</th>
+                <th>Prijs</th>
+                <th>Acties</th>
+            </tr>
+            <?php foreach ($producten as $product): ?>
+                <tr>
+                    <td><?= htmlspecialchars($product['naam']) ?></td>
+                    <td>€<?= htmlspecialchars($product['prijs']) ?></td>
+                    <td>
+                        <button class="styling-form"
+                                onclick="editProduct(<?= $product['id'] ?>, '<?= addslashes($product['naam']) ?>', <?= $product['prijs'] ?>)">
+                            Bewerken
+                        </button>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="verwijderen">
+                            <input type="hidden" name="id" value="<?= $product['id'] ?>">
+                            <button type="submit" class="styling-form">Verwijderen</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+
+        <!-- Update formulier (verborgen totdat je een product bewerkt) -->
+        <div id="editForm" class="pagina" style="display:none;">
+            <h3>Product bewerken</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="updaten">
+                <input type="hidden" id="editId" name="id">
+                <input type="text" id="editNaam" name="naam" class="styling-form" required>
+                <input type="number" id="editPrijs" name="prijs" class="styling-form" step="0.01" required>
+                <div class="Send">
+                    <button type="submit" class="styling-form">Wijzigingen opslaan</button>
+                    <button type="button" class="styling-form" onclick="cancelEdit()">Annuleren</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Inkomende Vragen Sectie -->
+    <div id="vragen" class="content">
+        <h2>Inkomende Vragen</h2>
+        <table class="styling-table">
+            <tr>
+                <th>Naam</th>
+                <th>Bericht</th>
+            </tr>
+            <?php foreach ($Vragen as $vraag): ?>
+                <tr>
+                    <td><?= htmlspecialchars($vraag['Naam']) ?></td>
+                    <td><?= htmlspecialchars($vraag['Bericht']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
     </div>
 </div>
-<h3>Inkomende Vragen</h3>
-<table class="styling-table">
-    <tr>
-        <th>Naam</th>
-        <th>Vraag</th>
-    </tr>
-<?php foreach ($Vragen as $Vraag): ?>
-    <tr>
-        <td><?= htmlspecialchars($Vraag['Naam']) ?></td>
-        <td>€<?= htmlspecialchars($Vraag['Vraag']) ?></td>
-        <td>
-            <button class="styling-form"
-                    onclick="editProduct(<?= $Vraag['id'] ?>, '<?= addslashes($Vraag['Naam']) ?>', <?= $Vraag['Bericht'] ?>)">
-                Bewerken
-            </button>
-            <form method="POST" style="display:inline;">
-                <input type="hidden" name="action" value="verwijderen">
-                <input type="hidden" name="id" value="<?= $Vraag['id'] ?>">
-                <button type="submit" class="styling-form">Verwijderen</button>
-            </form>
-        </td>
-    </tr>
-<?php endforeach; ?>
-</table>
+
+<!-- Script om de actieve sectie te tonen -->
 <script>
     function showContent(id) {
         document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
@@ -221,6 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById("editForm").style.display = "none";
     }
 </script>
+
+
 
 </body>
 </html>

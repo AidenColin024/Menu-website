@@ -1,35 +1,34 @@
 <?php
-$servername = "mysql_db";
-$username = "root";
-$password = "rootpassword";
+// Databaseverbinding
+$host = "mysql_db";
+$dbname = "Restaurant";
+$username = "root"; // Pas aan naar jouw databasegebruikersnaam
+$password = "rootpassword"; // Pas aan naar jouw databasewachtwoord
 
 try {
-    $conn = new PDO("mysql:host=$servername;dbname=Restaurant", $username, $password);
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo "Verbinding mislukt: " . $e->getMessage();
+    die("Verbinding mislukt: " . $e->getMessage());
 }
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $naam = $_POST['naam'];
-    $vraag = $_POST['vraag'];
 
-    if (!empty($naam) && !empty($vraag)) {
-        try {
-            $stmt = $conn->prepare("INSERT INTO Vragen (Naam, Vraag) VALUES (:naam, :vraag)");
-            $stmt->execute([
-                ':naam' => $naam,
-                ':vraag' => $vraag
-            ]);
-            echo "Uw vraag is succesvol verzonden!";
-        } catch (PDOException $e) {
-            echo "Fout bij het opslaan van de vraag: " . $e->getMessage();
-        }
+// Formulier verwerken
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['naam']) && isset($_POST['bericht'])) {
+        $naam = $_POST['naam'];
+        $bericht = $_POST['bericht'];
+
+        // Gegevens opslaan in de database
+        $stmt = $conn->prepare("INSERT INTO Vragen (Naam, Bericht) VALUES (:naam, :bericht)");
+        $stmt->execute([':naam' => $naam, ':bericht' => $bericht]);
+
+        echo "Bedankt voor je vraag!";
     } else {
         echo "Vul alstublieft alle velden in.";
     }
 }
 ?>
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 
